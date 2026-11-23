@@ -190,7 +190,7 @@ double CombatFactor(Config const& config, Unit const* source, Unit const* target
 {
     bool heal = category >= DirectHeal;
     if (!source || !target || (!heal && source == target) || !source->IsInWorld() || !target->IsInWorld() ||
-        source->FindMap() != target->FindMap() || source->IsCharmed() || target->IsCharmed())
+        source->FindMap() != target->FindMap() || (!config.allowCharmedUnits && (source->IsCharmed() || target->IsCharmed())))
         return 1;
 
     Profile profile = GetProfile(source->FindMap());
@@ -223,7 +223,7 @@ double CombatFactor(Config const& config, Unit const* source, Unit const* target
         level = owner->GetLevel();
         if (creature && (creature->IsTrigger() || creature->IsVehicle()))
             return 1;
-        if (creature && !source->IsPet() && !source->IsHunterPet() && !source->IsGuardian() && !source->IsTotem() && !source->IsSummon())
+        if (creature && !source->IsPet() && !source->IsHunterPet() && !source->IsGuardian() && !source->IsTotem() && !source->IsSummon() && !source->IsCharmed())
             return 1;
         if (creature && heal)
             return 1;

@@ -57,14 +57,20 @@ ProgressionScaling.Curve.Mode = 1
 #   - Completely keeps Battlegrounds and Arenas unscaled.
 #   - Completely suppresses scaling during open-world PvP combat and duels.
 #   - Protects dungeon and raid instances from creature HP modification.
-# To allow scaling everywhere (PvP, Arenas, Battlegrounds, Dungeons, Raids), set this to 0.
-# Default: 0 (Scaling Allowed Everywhere)
+# Off means off (0): Scaling is enabled across Open World PvP, Duels,
+# Battlegrounds, Arenas, and instances.
+# Default: 0 (Safe Mode OFF / Scaling Active Everywhere)
 ProgressionScaling.Compatibility.SafeMode = 0
 
 # Allow scaling during open-world player-vs-player combat and duels.
 # Requires ProgressionScaling.Compatibility.SafeMode = 0.
 # Default: 1 (Enabled)
 ProgressionScaling.Compatibility.AllowOutdoorPvP = 1
+
+# Allow progression scaling for charmed and mind-controlled units.
+# When enabled (1), charmed players and creatures participate in combat scaling.
+# Default: 1 (Enabled)
+ProgressionScaling.Compatibility.AllowCharmedUnits = 1
 
 
 ###################################################################################################
@@ -228,12 +234,13 @@ ProgressionScaling.CreatureHealing.PeriodicHealMultiplier = 1.00
 ###################################################################################################
 
 # Automatically exempt outdoor World Bosses from creature health and damage scaling.
-# Default: 1 (Exempt)
-ProgressionScaling.WorldDifficulty.WorldBossExempt = 1
+# Set to 1 to exempt, or 0 to scale World Bosses alongside other creatures.
+# Default: 0 (Enabled / World Bosses Scaled)
+ProgressionScaling.WorldDifficulty.WorldBossExempt = 0
 
 # Allow NPC-summoned temporary minions to receive creature damage scaling.
-# Default: 0 (Disabled / Protected)
-ProgressionScaling.CreatureDamage.NpcSummons = 0
+# Default: 1 (Enabled / Scaled)
+ProgressionScaling.CreatureDamage.NpcSummons = 1
 
 
 ###################################################################################################

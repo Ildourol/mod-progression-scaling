@@ -122,15 +122,16 @@ struct RateBracket
 struct Config
 {
     bool enabled = false;
-    bool safeMode = true;
-    bool allowOutdoorPvP = false;
+    bool safeMode = false;
+    bool allowOutdoorPvP = true;
+    bool allowCharmedUnits = true;
     bool autoBalance = true;
     bool bypassDungeonHealth = true;
     bool bypassRaidHealth = true;
     bool dungeonDamage = true;
     bool raidDamage = true;
-    bool worldBossExempt = true;
-    bool npcSummons = false;
+    bool worldBossExempt = false;
+    bool npcSummons = true;
     bool creatureHealing = false;
     bool classEnabled = false;
     bool ratesEnabled = false;

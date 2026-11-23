@@ -291,6 +291,7 @@ public:
         config->enabled = Read("Enable", true);
         config->safeMode = Read("Compatibility.SafeMode", false);
         config->allowOutdoorPvP = Read("Compatibility.AllowOutdoorPvP", true);
+        config->allowCharmedUnits = Read("Compatibility.AllowCharmedUnits", true);
 
         // AutoBalance detection: check if AutoBalance is active in world server configuration
         bool autoBalanceDetected = sConfigMgr->GetOption<bool>("AutoBalance.Enable.Global",
@@ -301,8 +302,8 @@ public:
         config->bypassRaidHealth = Read("AutoBalanceCompat.DisableRaidCreatureHealth", true);
         config->dungeonDamage = Read("AutoBalanceCompat.AllowDungeonCreatureDamage", false);
         config->raidDamage = Read("AutoBalanceCompat.AllowRaidCreatureDamage", false);
-        config->worldBossExempt = Read("WorldDifficulty.WorldBossExempt", true);
-        config->npcSummons = Read("CreatureDamage.NpcSummons", false);
+        config->worldBossExempt = Read("WorldDifficulty.WorldBossExempt", false);
+        config->npcSummons = Read("CreatureDamage.NpcSummons", true);
         config->gearDiagnostics = Read("GearAwareness.Enable", false);
         config->debug = Read("Debug", false);
         config->debugChannel = { Read("Debug.Combat", false), Read("Debug.Creatures", false),
