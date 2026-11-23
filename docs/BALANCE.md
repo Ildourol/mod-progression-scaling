@@ -1,0 +1,7 @@
+# Balance measurements
+
+An illustrative equal-target damage-only time-to-kill ratio is `world HP factor / sustained player damage factor`. At level 80, ConservativeSlow gives `1.10 / 0.85 ≈ 1.294`, or 29.4% longer, while GentleSlow gives `1.08 / 0.88 ≈ 1.227`. If incoming DPS changes by 0.97 throughout the same fight, the conservative estimate for total incoming damage is `0.97 × 1.294 ≈ 1.255`. Player resources, gear, target level, avoidance, procs, spell eligibility, movement, and regeneration can materially change these estimates. Instance HP has a factor of 1.00 by default.
+
+For controlled measurements, use the same server build, character, gear, talents, target, playerbot group, world rates and encounter script with the module disabled and enabled. Respawn between runs, and record damage per landed hit, damage taken, actual fight duration, pet share, casts and remaining healer mana, health, effective healing, deaths, and tank threat. Use a stationary PvE creature and include a training dummy for player-output sampling. Repeat at 1, 10, 20, 40, 60, 70 and 80 with ordinary and elite enemies. For instance comparisons, keep AutoBalance settings and group makeup identical.
+
+**Measured server combat results** are pending. The synthetic benchmark in [Testing](TESTING.md) measures policy arithmetic and a location lookup. It does not measure worldserver CPU, swing tempo, DPS or time-to-kill.

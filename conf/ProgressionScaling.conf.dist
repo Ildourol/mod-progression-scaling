@@ -1,0 +1,476 @@
+[worldserver]
+
+###################################################################################################
+# PROGRESSION SCALING MODULE CONFIGURATION
+#
+# This module dynamically scales combat math (player damage/healing, pet damage, creature
+# health/damage), experience rates, gathering/crafting skills, and reputations across levels 1-80.
+# It smoothly closes the progression gap while cooperating with AutoBalance and Playerbots.
+###################################################################################################
+
+###################################################################################################
+# 1. CORE MASTER CONTROLS
+###################################################################################################
+
+# Enable or disable the ProgressionScaling module.
+# Default: 1 (Enabled)
+ProgressionScaling.Enable = 1
+
+# Mathematical progression curve preset profile to load.
+# Available presets:
+#   - "Neutral"           : Flat 1.0 multiplier across all levels (no scaling applied)
+#   - "VanillaInspired"   : Classic Vanilla pacing (0.80 damage/pet, 0.85 heal, 1.15 mob HP)
+#   - "ConservativeSlow"  : Gentle scaling curve for standard leveling pacing
+#   - "Moderate"          : Medium progression curve
+#   - "Steep"             : Accelerated curve for fast or high-rate progression
+# Default: VanillaInspired
+ProgressionScaling.Preset = VanillaInspired
+
+# Minimum character level where progression scaling interpolation begins.
+# Range: 1 - 80
+# Default: 1
+ProgressionScaling.MinLevel = 1
+
+# Maximum character level where progression scaling interpolation caps.
+# Range: 1 - 80
+# Default: 80
+ProgressionScaling.MaxLevel = 80
+
+# Master toggle for mathematical interpolation curves.
+# If disabled (0), all curve evaluations return 1.0 (flat rate).
+# Default: 1 (Enabled)
+ProgressionScaling.Curve.Enable = 1
+
+# Interpolation formula calculation mode:
+#   0 = Linear interpolation between Start and End values
+#   1 = Polynomial curve using the configured Power exponent: Start + (End - Start) * (x ^ Power)
+# Default: 1 (Polynomial)
+ProgressionScaling.Curve.Mode = 1
+
+
+###################################################################################################
+# 2. COMPATIBILITY, SAFETY & PVP CONTROLS
+###################################################################################################
+
+# Safe Mode Master Interlock.
+# When enabled (1):
+#   - Completely keeps Battlegrounds and Arenas unscaled.
+#   - Completely suppresses scaling during open-world PvP combat and duels.
+#   - Protects dungeon and raid instances from creature HP modification.
+# To allow scaling everywhere (PvP, Arenas, Battlegrounds, Dungeons, Raids), set this to 0.
+# Default: 0 (Scaling Allowed Everywhere)
+ProgressionScaling.Compatibility.SafeMode = 0
+
+# Allow scaling during open-world player-vs-player combat and duels.
+# Requires ProgressionScaling.Compatibility.SafeMode = 0.
+# Default: 1 (Enabled)
+ProgressionScaling.Compatibility.AllowOutdoorPvP = 1
+
+
+###################################################################################################
+# 3. AUTOBALANCE ENGINE INTEROPERABILITY
+###################################################################################################
+# AutoBalance Compatibility Policy:
+# When AutoBalanceCompat.Enable is active (1) and AutoBalance is loaded on the server,
+# AutoBalance has exclusive, authoritative ownership of all creature health, damage, and stat
+# adjustments inside dungeons and raids. ProgressionScaling automatically suppresses instance
+# scaling to prevent double application.
+# If set to 0 (and AutoBalance is disabled), ProgressionScaling can apply its curves to instances.
+
+# Master toggle for AutoBalance safety compatibility.
+# Default: 1 (AutoBalance Exclusive Ownership in Instances)
+ProgressionScaling.AutoBalanceCompat.Enable = 1
+
+# Automatically prevent ProgressionScaling from modifying creature health in 5-player dungeons.
+# Default: 1 (Protected / AutoBalance Governed)
+ProgressionScaling.AutoBalanceCompat.DisableDungeonCreatureHealth = 1
+
+# Automatically prevent ProgressionScaling from modifying creature health in raids.
+# Default: 1 (Protected / AutoBalance Governed)
+ProgressionScaling.AutoBalanceCompat.DisableRaidCreatureHealth = 1
+
+# Allow ProgressionScaling to scale creature damage in 5-player dungeons alongside AutoBalance.
+# Default: 0 (Disabled / AutoBalance Governed)
+ProgressionScaling.AutoBalanceCompat.AllowDungeonCreatureDamage = 0
+
+# Allow ProgressionScaling to scale creature damage in raids alongside AutoBalance.
+# Default: 0 (Disabled / AutoBalance Governed)
+ProgressionScaling.AutoBalanceCompat.AllowRaidCreatureDamage = 0
+
+
+###################################################################################################
+# 4. TELEMETRY & DEBUG LOGGING
+###################################################################################################
+
+# Master debug logging switch. When enabled, diagnostics are output to the server console/logs.
+# Default: 0 (Disabled)
+ProgressionScaling.Debug = 0
+
+# Log real-time damage and healing adjustments during combat (capped at 1 sample every 10 seconds).
+# Default: 0 (Disabled)
+ProgressionScaling.Debug.Combat = 0
+
+# Log creature spawn health generation and template calculations.
+# Default: 0 (Disabled)
+ProgressionScaling.Debug.Creatures = 0
+
+# Log pet and minion output scaling calculations.
+# Default: 0 (Disabled)
+ProgressionScaling.Debug.Pets = 0
+
+# Log detailed compatibility decisions and loaded safety policies at server startup.
+# Default: 0 (Disabled)
+ProgressionScaling.Debug.Compatibility = 0
+
+
+###################################################################################################
+# 5. PROGRESSION CURVE CONFIGURATION (PER-EFFECT INTERPOLATION)
+#
+# Each effect supports:
+#   - Enable : Master toggle for this specific effect curve.
+#   - Start  : Starting multiplier at MinLevel. Set to "preset" or a float (e.g. 0.85).
+#   - End    : Ending multiplier at MaxLevel. Set to "preset" or a float (e.g. 1.15).
+#   - Power  : Curve exponent/curvature. Set to "preset" or a float (e.g. 1.00 for linear).
+###################################################################################################
+
+# --- Player Damage Output Curve ---
+# Scales player outgoing physical and spell damage based on player level.
+ProgressionScaling.PlayerDamage.Enable = 1
+ProgressionScaling.PlayerDamage.Start = preset
+ProgressionScaling.PlayerDamage.End = preset
+ProgressionScaling.PlayerDamage.Power = preset
+
+# --- Player Healing Output Curve ---
+# Scales player outgoing healing spells based on caster level.
+ProgressionScaling.PlayerHealing.Enable = 1
+ProgressionScaling.PlayerHealing.Start = preset
+ProgressionScaling.PlayerHealing.End = preset
+ProgressionScaling.PlayerHealing.Power = preset
+
+# --- Creature Damage Output Curve ---
+# Scales outdoor NPC outgoing attack damage based on creature level.
+ProgressionScaling.CreatureDamage.Enable = 1
+ProgressionScaling.CreatureDamage.Start = preset
+ProgressionScaling.CreatureDamage.End = preset
+ProgressionScaling.CreatureDamage.Power = preset
+
+# --- Creature Health Generation Curve ---
+# Scales outdoor NPC maximum health pool upon spawn/respawn.
+ProgressionScaling.CreatureHealth.Enable = 1
+ProgressionScaling.CreatureHealth.Start = preset
+ProgressionScaling.CreatureHealth.End = preset
+ProgressionScaling.CreatureHealth.Power = preset
+
+# --- Pet Damage Output Curve ---
+# Scales hunter/warlock/DK pet damage based on the owner's level.
+ProgressionScaling.PetDamage.Enable = 1
+ProgressionScaling.PetDamage.Start = preset
+ProgressionScaling.PetDamage.End = preset
+ProgressionScaling.PetDamage.Power = preset
+
+# --- Creature Healing Output Curve ---
+# Scales outdoor NPC healing cast output.
+ProgressionScaling.CreatureHealing.Enable = 0
+ProgressionScaling.CreatureHealing.Start = preset
+ProgressionScaling.CreatureHealing.End = preset
+ProgressionScaling.CreatureHealing.Power = preset
+
+
+###################################################################################################
+# 6. COMBAT DAMAGE & HEALING CATEGORY FILTERS
+#
+# Fine-tune scaling multipliers for specific attack types:
+#   - Swing     : Auto-attacks / white hits.
+#   - Spell     : Direct spells and special melee/ranged abilities (yellow hits).
+#   - Periodic  : Damage over Time (DoTs) or Healing over Time (HoTs).
+#   - DirectHeal: Direct cast healing spells.
+###################################################################################################
+
+# --- Player Damage Sub-Categories ---
+ProgressionScaling.PlayerDamage.Swing.Enable = 1
+ProgressionScaling.PlayerDamage.SwingMultiplier = 1.00
+ProgressionScaling.PlayerDamage.Spell.Enable = 1
+ProgressionScaling.PlayerDamage.SpellMultiplier = 1.00
+ProgressionScaling.PlayerDamage.Periodic.Enable = 1
+ProgressionScaling.PlayerDamage.PeriodicMultiplier = 1.00
+
+# --- Creature Damage Sub-Categories ---
+ProgressionScaling.CreatureDamage.Swing.Enable = 1
+ProgressionScaling.CreatureDamage.SwingMultiplier = 1.00
+ProgressionScaling.CreatureDamage.Spell.Enable = 1
+ProgressionScaling.CreatureDamage.SpellMultiplier = 1.00
+ProgressionScaling.CreatureDamage.Periodic.Enable = 1
+ProgressionScaling.CreatureDamage.PeriodicMultiplier = 1.00
+
+# --- Pet Damage Sub-Categories ---
+ProgressionScaling.PetDamage.Swing.Enable = 1
+ProgressionScaling.PetDamage.SwingMultiplier = 1.00
+ProgressionScaling.PetDamage.Spell.Enable = 1
+ProgressionScaling.PetDamage.SpellMultiplier = 1.00
+ProgressionScaling.PetDamage.Periodic.Enable = 1
+ProgressionScaling.PetDamage.PeriodicMultiplier = 1.00
+
+# --- Player Healing Sub-Categories ---
+ProgressionScaling.PlayerHealing.DirectHeal.Enable = 1
+ProgressionScaling.PlayerHealing.DirectHealMultiplier = 1.00
+ProgressionScaling.PlayerHealing.PeriodicHeal.Enable = 1
+ProgressionScaling.PlayerHealing.PeriodicHealMultiplier = 1.00
+
+# --- Creature Healing Sub-Categories ---
+ProgressionScaling.CreatureHealing.DirectHeal.Enable = 1
+ProgressionScaling.CreatureHealing.DirectHealMultiplier = 1.00
+ProgressionScaling.CreatureHealing.PeriodicHeal.Enable = 1
+ProgressionScaling.CreatureHealing.PeriodicHealMultiplier = 1.00
+
+
+###################################################################################################
+# 7. SPECIAL CREATURE EXEMPTIONS
+###################################################################################################
+
+# Automatically exempt outdoor World Bosses from creature health and damage scaling.
+# Default: 1 (Exempt)
+ProgressionScaling.WorldDifficulty.WorldBossExempt = 1
+
+# Allow NPC-summoned temporary minions to receive creature damage scaling.
+# Default: 0 (Disabled / Protected)
+ProgressionScaling.CreatureDamage.NpcSummons = 0
+
+
+###################################################################################################
+# 8. MAP & ZONE PROFILES
+#
+# Control which zones and map types participate in progression scaling.
+# Profiles: World (Open World), Dungeon, Raid, Battleground, Arena.
+###################################################################################################
+
+# --- World Profile (Open World Continents) ---
+ProgressionScaling.Profile.World.Enable = 1
+ProgressionScaling.Profile.World.PlayerDamage.Enable = 1
+ProgressionScaling.Profile.World.PlayerDamageMultiplier = 1.00
+ProgressionScaling.Profile.World.PlayerHealing.Enable = 1
+ProgressionScaling.Profile.World.PlayerHealingMultiplier = 1.00
+ProgressionScaling.Profile.World.CreatureDamage.Enable = 1
+ProgressionScaling.Profile.World.CreatureDamageMultiplier = 1.00
+ProgressionScaling.Profile.World.CreatureHealth.Enable = 1
+ProgressionScaling.Profile.World.CreatureHealthMultiplier = 1.00
+ProgressionScaling.Profile.World.PetDamage.Enable = 1
+ProgressionScaling.Profile.World.PetDamageMultiplier = 1.00
+ProgressionScaling.Profile.World.CreatureHealing.Enable = 1
+ProgressionScaling.Profile.World.CreatureHealingMultiplier = 1.00
+
+# --- Dungeon Profile (5-Player Dungeons) ---
+ProgressionScaling.Profile.Dungeon.Enable = 1
+ProgressionScaling.Profile.Dungeon.PlayerDamage.Enable = 1
+ProgressionScaling.Profile.Dungeon.PlayerDamageMultiplier = 1.00
+ProgressionScaling.Profile.Dungeon.PlayerHealing.Enable = 1
+ProgressionScaling.Profile.Dungeon.PlayerHealingMultiplier = 1.00
+ProgressionScaling.Profile.Dungeon.CreatureDamage.Enable = 1
+ProgressionScaling.Profile.Dungeon.CreatureDamageMultiplier = 1.00
+ProgressionScaling.Profile.Dungeon.CreatureHealth.Enable = 1
+ProgressionScaling.Profile.Dungeon.CreatureHealthMultiplier = 1.00
+ProgressionScaling.Profile.Dungeon.PetDamage.Enable = 1
+ProgressionScaling.Profile.Dungeon.PetDamageMultiplier = 1.00
+ProgressionScaling.Profile.Dungeon.CreatureHealing.Enable = 1
+ProgressionScaling.Profile.Dungeon.CreatureHealingMultiplier = 1.00
+
+# --- Raid Profile (10/25/40-Player Raids) ---
+ProgressionScaling.Profile.Raid.Enable = 1
+ProgressionScaling.Profile.Raid.PlayerDamage.Enable = 1
+ProgressionScaling.Profile.Raid.PlayerDamageMultiplier = 1.00
+ProgressionScaling.Profile.Raid.PlayerHealing.Enable = 1
+ProgressionScaling.Profile.Raid.PlayerHealingMultiplier = 1.00
+ProgressionScaling.Profile.Raid.CreatureDamage.Enable = 1
+ProgressionScaling.Profile.Raid.CreatureDamageMultiplier = 1.00
+ProgressionScaling.Profile.Raid.CreatureHealth.Enable = 1
+ProgressionScaling.Profile.Raid.CreatureHealthMultiplier = 1.00
+ProgressionScaling.Profile.Raid.PetDamage.Enable = 1
+ProgressionScaling.Profile.Raid.PetDamageMultiplier = 1.00
+ProgressionScaling.Profile.Raid.CreatureHealing.Enable = 1
+ProgressionScaling.Profile.Raid.CreatureHealingMultiplier = 1.00
+
+# --- Battleground Profile (PvP Battlegrounds) ---
+ProgressionScaling.Profile.Battleground.Enable = 1
+ProgressionScaling.Profile.Battleground.PlayerDamage.Enable = 1
+ProgressionScaling.Profile.Battleground.PlayerDamageMultiplier = 1.00
+ProgressionScaling.Profile.Battleground.PlayerHealing.Enable = 1
+ProgressionScaling.Profile.Battleground.PlayerHealingMultiplier = 1.00
+ProgressionScaling.Profile.Battleground.CreatureDamage.Enable = 1
+ProgressionScaling.Profile.Battleground.CreatureDamageMultiplier = 1.00
+ProgressionScaling.Profile.Battleground.CreatureHealth.Enable = 1
+ProgressionScaling.Profile.Battleground.CreatureHealthMultiplier = 1.00
+ProgressionScaling.Profile.Battleground.PetDamage.Enable = 1
+ProgressionScaling.Profile.Battleground.PetDamageMultiplier = 1.00
+ProgressionScaling.Profile.Battleground.CreatureHealing.Enable = 1
+ProgressionScaling.Profile.Battleground.CreatureHealingMultiplier = 1.00
+
+# --- Arena Profile (PvP Arenas) ---
+ProgressionScaling.Profile.Arena.Enable = 1
+ProgressionScaling.Profile.Arena.PlayerDamage.Enable = 1
+ProgressionScaling.Profile.Arena.PlayerDamageMultiplier = 1.00
+ProgressionScaling.Profile.Arena.PlayerHealing.Enable = 1
+ProgressionScaling.Profile.Arena.PlayerHealingMultiplier = 1.00
+ProgressionScaling.Profile.Arena.CreatureDamage.Enable = 1
+ProgressionScaling.Profile.Arena.CreatureDamageMultiplier = 1.00
+ProgressionScaling.Profile.Arena.CreatureHealth.Enable = 1
+ProgressionScaling.Profile.Arena.CreatureHealthMultiplier = 1.00
+ProgressionScaling.Profile.Arena.PetDamage.Enable = 1
+ProgressionScaling.Profile.Arena.PetDamageMultiplier = 1.00
+ProgressionScaling.Profile.Arena.CreatureHealing.Enable = 1
+ProgressionScaling.Profile.Arena.CreatureHealingMultiplier = 1.00
+
+
+###################################################################################################
+# 9. CREATURE RANK MULTIPLIERS
+#
+# Flat scaling adjustments applied depending on the creature's classification/rank in the database:
+# Normal (0), Elite (1), RareElite (2), WorldBoss (3), Rare (4).
+###################################################################################################
+
+ProgressionScaling.Rank.Normal.DamageMultiplier = 1.00
+ProgressionScaling.Rank.Normal.HealthMultiplier = 1.00
+
+# Outdoor Elites dangerous again (Vanilla group challenges: Hogger, Jintha'Alor, Stromgarde)
+ProgressionScaling.Rank.Elite.DamageMultiplier = 1.15
+ProgressionScaling.Rank.Elite.HealthMultiplier = 1.25
+
+ProgressionScaling.Rank.RareElite.DamageMultiplier = 1.20
+ProgressionScaling.Rank.RareElite.HealthMultiplier = 1.30
+
+ProgressionScaling.Rank.WorldBoss.DamageMultiplier = 1.00
+ProgressionScaling.Rank.WorldBoss.HealthMultiplier = 1.00
+
+ProgressionScaling.Rank.Rare.DamageMultiplier = 1.00
+ProgressionScaling.Rank.Rare.HealthMultiplier = 1.00
+
+
+###################################################################################################
+# 10. CLASS-SPECIFIC BALANCE TUNING
+#
+# When enabled, applies individual fine-tuning multipliers to specific player character classes.
+# For pets, the pet owner's class is used.
+###################################################################################################
+
+ProgressionScaling.Class.Enable = 0
+
+ProgressionScaling.Class.Warrior.PlayerDamage = 1.00
+ProgressionScaling.Class.Warrior.PlayerHealing = 1.00
+ProgressionScaling.Class.Warrior.PetDamage = 1.00
+
+ProgressionScaling.Class.Paladin.PlayerDamage = 1.00
+ProgressionScaling.Class.Paladin.PlayerHealing = 1.00
+ProgressionScaling.Class.Paladin.PetDamage = 1.00
+
+ProgressionScaling.Class.Hunter.PlayerDamage = 1.00
+ProgressionScaling.Class.Hunter.PlayerHealing = 1.00
+ProgressionScaling.Class.Hunter.PetDamage = 1.00
+
+ProgressionScaling.Class.Rogue.PlayerDamage = 1.00
+ProgressionScaling.Class.Rogue.PlayerHealing = 1.00
+ProgressionScaling.Class.Rogue.PetDamage = 1.00
+
+ProgressionScaling.Class.Priest.PlayerDamage = 1.00
+ProgressionScaling.Class.Priest.PlayerHealing = 1.00
+ProgressionScaling.Class.Priest.PetDamage = 1.00
+
+ProgressionScaling.Class.DeathKnight.PlayerDamage = 1.00
+ProgressionScaling.Class.DeathKnight.PlayerHealing = 1.00
+ProgressionScaling.Class.DeathKnight.PetDamage = 1.00
+
+ProgressionScaling.Class.Shaman.PlayerDamage = 1.00
+ProgressionScaling.Class.Shaman.PlayerHealing = 1.00
+ProgressionScaling.Class.Shaman.PetDamage = 1.00
+
+ProgressionScaling.Class.Mage.PlayerDamage = 1.00
+ProgressionScaling.Class.Mage.PlayerHealing = 1.00
+ProgressionScaling.Class.Mage.PetDamage = 1.00
+
+ProgressionScaling.Class.Warlock.PlayerDamage = 1.00
+ProgressionScaling.Class.Warlock.PlayerHealing = 1.00
+ProgressionScaling.Class.Warlock.PetDamage = 1.00
+
+ProgressionScaling.Class.Druid.PlayerDamage = 1.00
+ProgressionScaling.Class.Druid.PlayerHealing = 1.00
+ProgressionScaling.Class.Druid.PetDamage = 1.00
+
+
+###################################################################################################
+# 11. GRANULAR OVERRIDE & EXCLUSION RULES
+#
+# Custom rule strings for specific locations, spells, or creature entries.
+# Format rules:
+#   - Separate multiple rules with '|'.
+#   - Map format: map:zone:area:difficulty:effect:factor (e.g. "0:0:0:-1:PlayerDamage:0.98")
+#   - Zone format: map:zone:area:difficulty:effect:factor (e.g. "0:12:0:-1:CreatureHealth:0.95")
+#   - Spell format: spellId:category:factor-or-exclude (e.g. "133:Spell:0.98|172:Periodic:exclude")
+#   - Creature format: entry:effect (e.g. "123:CreatureHealth|123:PlayerDamage")
+###################################################################################################
+
+ProgressionScaling.MapOverrides.Enable = 0
+ProgressionScaling.MapOverrides.Rules = ""
+
+ProgressionScaling.ZoneOverrides.Enable = 0
+ProgressionScaling.ZoneOverrides.Rules = ""
+
+ProgressionScaling.SpellOverrides.Enable = 0
+ProgressionScaling.SpellOverrides.Rules = ""
+
+ProgressionScaling.CreatureExclusions.Enable = 0
+ProgressionScaling.CreatureExclusions.Rules = ""
+
+
+###################################################################################################
+# 12. RATES & PROGRESSION REWARDS
+#
+# World-only multipliers for character XP gains, tradeskills, and reputations.
+# Note: Dungeon Finder and Battleground XP rewards bypass these multipliers.
+###################################################################################################
+
+# --- Experience Rates (Classic 1-60 leveling pacing) ---
+ProgressionScaling.Rates.Enable = 1
+ProgressionScaling.Rates.KillXP = 0.80
+ProgressionScaling.Rates.QuestXP = 0.85
+ProgressionScaling.Rates.ExplorationXP = 0.80
+
+# Level-bracket XP overrides. Format: "firstLevel:lastLevel:killXP:questXP:explorationXP"
+# Example: "1:60:0.85~0.95~1:1:1|61:70:0.95:1:1|71:80:1:1:1"
+ProgressionScaling.Rates.Brackets.Enable = 0
+ProgressionScaling.Rates.Brackets.Rules = ""
+
+# --- Tradeskills & Professions ---
+# Multipliers for skill-ups during gathering and crafting (Range: 1.0 - 3.0).
+# Note: Fishing is handled by native mechanics outside this hook.
+ProgressionScaling.Professions.Enable = 0
+ProgressionScaling.Professions.CraftingStep = 1.00
+ProgressionScaling.Professions.GatheringStep = 1.00
+
+# --- Reputation Gains ---
+# Multipliers for positive kill and quest reputation gains for explicit faction IDs.
+# Factions format: list of faction IDs separated by '|' (e.g. "72|69"). Empty = no change.
+ProgressionScaling.Reputation.Enable = 0
+ProgressionScaling.Reputation.Factions = ""
+ProgressionScaling.Reputation.KillMultiplier = 1.00
+ProgressionScaling.Reputation.QuestMultiplier = 1.00
+
+
+###################################################################################################
+# 13. SOLO & ADAPTIVE SYSTEMS
+###################################################################################################
+
+# --- Solo Player Compensation ---
+# Provides small output assistance to solo players in the open world who are not in any group.
+# Note: A group composed of playerbots counts as a group (compensation stays off).
+# Damage and healing multipliers accept 1.00 - 1.15.
+ProgressionScaling.SoloCompensation.Enable = 0
+ProgressionScaling.SoloCompensation.Damage = 1.00
+ProgressionScaling.SoloCompensation.Healing = 1.00
+
+# --- Gear Diagnostics ---
+# When enabled, enables the in-game command '.progression gear' to inspect equipped item levels.
+ProgressionScaling.GearAwareness.Enable = 0
+
+# --- Level Delta Scaling (Punish pulling orange/red mobs above player level) ---
+ProgressionScaling.LevelDelta.Enable = 1
+ProgressionScaling.LevelDelta.Limit = 10
+ProgressionScaling.LevelDelta.PerLevel = 0.02
+ProgressionScaling.LevelDelta.MinMultiplier = 0.75
+ProgressionScaling.LevelDelta.MaxMultiplier = 1.20

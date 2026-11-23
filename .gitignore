@@ -1,0 +1,28 @@
+# Excluded per project distribution requirements
+.agents/
+AGENTS.md
+tests/
+
+# Build artifacts & temporary files
+build/
+bin/
+*.obj
+*.o
+*.lib
+*.a
+*.dll
+*.exe
+*.pdb
+*.log
+
+# IDE and tooling
+.vs/
+*.sln
+*.vcxproj*
+.idea/
+.vscode/
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
